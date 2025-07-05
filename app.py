@@ -173,8 +173,8 @@ gears = df['Gear'].dropna().unique().tolist()
 new_gear = st.text_input('Add new gear (optional)')
 if new_gear:
     if new_gear not in gears:
-        # Add new gear to DataFrame and Excel
-        new_row = {
+        # Add new gear to DataFrame and Excel (use pd.concat instead of deprecated append)
+        new_row = pd.DataFrame([{
             'Gear': new_gear,
             'TRTR Date': '',
             'TRTR Next Open': '',
@@ -182,8 +182,8 @@ if new_gear:
             'MNTT Date': '',
             'MNTT Next Open': '',
             'MNTT Reminder Sent': ''
-        }
-        df = df.append(new_row, ignore_index=True)
+        }], columns=COLUMNS)
+        df = pd.concat([df, new_row], ignore_index=True)
         save_data(df)
         gears.append(new_gear)
         st.success(f'Added new gear: {new_gear}')
