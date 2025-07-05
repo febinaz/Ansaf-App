@@ -164,6 +164,17 @@ if pd.read_excel(EXCEL_FILE, engine='openpyxl').empty:
 init_excel()
 df = load_data()
 
+# Reset reminder sent flags if due date is in the past
+# This ensures reminders can be sent again for the next due date
+for idx, row in df.iterrows():
+    # Reset TRTR Reminder Sent if due date is over
+    if row['TRTR Next Open'] and pd.to_datetime(row['TRTR Next Open'], errors='coerce').date() < datetime.today().date():
+        df.at[idx, 'TRTR Reminder Sent'] = 'No'
+    # Reset MNTT Reminder Sent if due date is over
+    if row['MNTT Next Open'] and pd.to_datetime(row['MNTT Next Open'], errors='coerce').date() < datetime.today().date():
+        df.at[idx, 'MNTT Reminder Sent'] = 'No'
+save_data(df)
+
 st.title('Gear Reminder App')
 
 # Dropdown for gears
@@ -171,6 +182,18 @@ gears = df['Gear'].dropna().unique().tolist()
 new_gear = st.text_input('Add new gear (optional)')
 if new_gear:
     if new_gear not in gears:
+        # Add new gear to DataFrame and Excel
+        new_row = {
+            'Gear': new_gear,
+            'TRTR Date': '',
+            'TRTR Next Open': '',
+            'TRTR Reminder Sent': '',
+            'MNTT Date': '',
+            'MNTT Next Open': '',
+            'MNTT Reminder Sent': ''
+        }
+        df = df.append(new_row, ignore_index=True)
+        save_data(df)
         gears.append(new_gear)
         st.success(f'Added new gear: {new_gear}')
 selected_gear = st.selectbox('Select Gear', gears)
@@ -187,6 +210,7 @@ with col1:
         if len(idx) > 0:
             df.loc[idx, 'TRTR Date'] = trtr_date
             df.loc[idx, 'TRTR Next Open'] = next_trtr
+            # Reset reminder sent flag to 'No' when new open date is set
             df.loc[idx, 'TRTR Reminder Sent'] = 'No'
         else:
             df = df.append({
@@ -208,6 +232,7 @@ with col2:
         if len(idx) > 0:
             df.loc[idx, 'MNTT Date'] = mntt_date
             df.loc[idx, 'MNTT Next Open'] = next_mntt
+            # Reset reminder sent flag to 'No' when new open date is set
             df.loc[idx, 'MNTT Reminder Sent'] = 'No'
         else:
             df = df.append({
