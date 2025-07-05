@@ -204,7 +204,8 @@ with col1:
             # Reset reminder sent flag to 'No' when new open date is set
             df.loc[idx, 'TRTR Reminder Sent'] = 'No'
         else:
-            df = df.append({
+            # Use pd.concat instead of append
+            new_row = pd.DataFrame([{
                 'Gear': selected_gear,
                 'TRTR Date': trtr_date,
                 'TRTR Next Open': next_trtr,
@@ -212,9 +213,10 @@ with col1:
                 'MNTT Date': '',
                 'MNTT Next Open': '',
                 'MNTT Reminder Sent': ''
-            }, ignore_index=True)
+            }], columns=COLUMNS)
+            df = pd.concat([df, new_row], ignore_index=True)
         save_data(df)
-        st.success(f'{selected_gear} TRTR marked as opened. Next open: {next_trtr.strftime("%Y-%m-%d")}')
+        st.success(f'{selected_gear} TRTR marked as opened. Next open: {next_trtr.strftime("%Y-%m-%d")})')
 
 with col2:
     if st.button('Mark MNTT as Opened'):
@@ -226,7 +228,8 @@ with col2:
             # Reset reminder sent flag to 'No' when new open date is set
             df.loc[idx, 'MNTT Reminder Sent'] = 'No'
         else:
-            df = df.append({
+            # Use pd.concat instead of append
+            new_row = pd.DataFrame([{
                 'Gear': selected_gear,
                 'TRTR Date': '',
                 'TRTR Next Open': '',
@@ -234,9 +237,10 @@ with col2:
                 'MNTT Date': mntt_date,
                 'MNTT Next Open': next_mntt,
                 'MNTT Reminder Sent': 'No'
-            }, ignore_index=True)
+            }], columns=COLUMNS)
+            df = pd.concat([df, new_row], ignore_index=True)
         save_data(df)
-        st.success(f'{selected_gear} MNTT marked as opened. Next open: {next_mntt.strftime("%Y-%m-%d")}')
+        st.success(f'{selected_gear} MNTT marked as opened. Next open: {next_mntt.strftime("%Y-%m-%d")})')
 
 # Reminders for TRTR
 reminders_trtr = df[(df['TRTR Next Open'].notna()) & (df['TRTR Reminder Sent'] != 'Yes') & (pd.to_datetime(df['TRTR Next Open'], errors='coerce').dt.date == datetime.today().date())]
