@@ -159,8 +159,7 @@ migrate_excel()
 # Populate with sample data if file is empty
 if pd.read_excel(EXCEL_FILE, engine='openpyxl').empty:
     populate_sample_data()
-# Add sample data for testing reminders
-add_today_due_sample()
+# Removed sample data addition for testing
 
 init_excel()
 df = load_data()
