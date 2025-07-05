@@ -154,6 +154,12 @@ def add_today_due_sample():
     df = pd.concat([df, new_rows], ignore_index=True)
     df.to_excel(EXCEL_FILE, index=False, engine='openpyxl')
 
+def remove_sample_data():
+    df = load_data()
+    # Remove rows where Gear is 'SampleGear1' or 'SampleGear2'
+    df = df[~df['Gear'].isin(['SampleGear1', 'SampleGear2'])]
+    save_data(df)
+
 # Call migration before loading data
 migrate_excel()
 # Populate with sample data if file is empty
@@ -252,6 +258,7 @@ if not reminders_trtr.empty:
         msg = f"Gear: {row['Gear']} - TRTR needs to be opened today! (Next Open: {row['TRTR Next Open']})"
         st.write(msg)
         reminder_msgs.append(msg)
+    # Only set to Yes for rows where Next Open is today
     df.loc[reminders_trtr.index, 'TRTR Reminder Sent'] = 'Yes'
     save_data(df)
 if not reminders_mntt.empty:
@@ -260,6 +267,7 @@ if not reminders_mntt.empty:
         msg = f"Gear: {row['Gear']} - MNTT needs to be opened today! (Next Open: {row['MNTT Next Open']})"
         st.write(msg)
         reminder_msgs.append(msg)
+    # Only set to Yes for rows where Next Open is today
     df.loc[reminders_mntt.index, 'MNTT Reminder Sent'] = 'Yes'
     save_data(df)
 
