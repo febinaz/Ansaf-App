@@ -164,16 +164,7 @@ if pd.read_excel(EXCEL_FILE, engine='openpyxl').empty:
 init_excel()
 df = load_data()
 
-# Reset reminder sent flags if due date is in the past
-# This ensures reminders can be sent again for the next due date
-for idx, row in df.iterrows():
-    # Reset TRTR Reminder Sent if due date is over
-    if row['TRTR Next Open'] and pd.to_datetime(row['TRTR Next Open'], errors='coerce').date() < datetime.today().date():
-        df.at[idx, 'TRTR Reminder Sent'] = 'No'
-    # Reset MNTT Reminder Sent if due date is over
-    if row['MNTT Next Open'] and pd.to_datetime(row['MNTT Next Open'], errors='coerce').date() < datetime.today().date():
-        df.at[idx, 'MNTT Reminder Sent'] = 'No'
-save_data(df)
+# Remove the block that resets reminder sent flags based on date, as this is now handled only when marking as opened
 
 st.title('Gear Reminder App')
 
